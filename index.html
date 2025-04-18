@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Check</title>
+</head>
+<style>
+
+    body {
+        font-size: 1.2rem;
+        line-height: 1.5;
+        background-color: #0D1117;
+        margin: 5% auto;
+        padding: 40px;
+        width: 80%;
+        color: #FFFFFF;
+    }
+
+    #container-global {
+        display: flex;
+        justify-content: center;
+    }
+
+    .container-title {
+        font-size: 32px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .container-verify {
+        background-color: #FFFFFF;
+        padding: 20px;
+        display: flex;
+        gap: 8px;
+        border-radius: 8px;
+    }
+
+    #btn {
+        padding: 8px;
+        width: 140px;
+        background-color: #01b901;
+        cursor: pointer;
+        border: none;
+        color: #FFFFFF;
+        font-size: 14px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    #btn:hover {
+        background-color: #008300;
+    }
+
+    #input-container {
+        border-radius: 4px;
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    @media only screen and (max-width: 600px) {
+        body {
+        margin: 5%;
+        width: 40%;
+        }
+        
+        .container-hero {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container-verify {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<body>
+    <div id="container-global">
+        <div class="container-hero">
+            <div class="container-title">Verificador Dominio BR</div>
+            <div class="container-verify">
+                <input type="text" required placeholder="exemplo.com.br" id="input-container">
+                <button id="btn">Verificar</button>
+            </div>
+            <div id="container-results"></div>
+        </div>
+    </div>
+
+    <script>
+
+        document.getElementById('btn').addEventListener('click', () => {
+            const input = document.getElementById('input-container').value;
+
+            if (!input.trim()) {
+                alert('Por favor, insira uma URL');
+                return;
+            }
+
+            fetch(`https://brasilapi.com.br/api/registrobr/v1/${encodeURIComponent(input)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar dados');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayResults(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Ocorreu um erro ao buscar os dados');
+                });
+
+            function displayResults(results) {
+                const resultsContainer = document.getElementById('container-results');
+                resultsContainer.innerHTML = ''
+
+                resultsContainer.innerHTML = `
+                <p><strong>Status:</strong> ${results.status}</p>
+                <p><strong>Domínio:</strong> ${results.fqdn}</p>
+                <p><strong>Expira em:</strong> ${results.expires_at || 'Não disponível'}</p>
+                `;
+            }
+        });
+
+    </script>
+</body>
+
+</html>
